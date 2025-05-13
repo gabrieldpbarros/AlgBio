@@ -1,4 +1,4 @@
-""" EX DE OPERACAO SEM NP: """
+""" EX DE OPERACAO SEM NUMPY: """
 matrix = [[1, 2, 3], # Estou definindo matrizes assim pra ficar mais fácil de visualizar,
           [4, 5, 6], # mas geralmente são definidas em uma linha.
           [3, 6, 7]]
