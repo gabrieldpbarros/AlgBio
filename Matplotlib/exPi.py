@@ -11,7 +11,7 @@ ydots = np.random.rand(size)
 # Divide os pontos entre fora e dentro do 1/4 de circunferencia
 outside = xdots**2 + ydots**2 > 1
 inside = xdots**2 + ydots**2 <= 1
-dots_outside = np.array([xdots[outside],ydots[outside]])
+dots_outside = np.array([xdots[outside], ydots[outside]])
 dots_inside = np.array([xdots[inside], ydots[inside]])
 # Assumindo um número infinitesimal de pontos contidos no quadrado de lado 1,
 # podemos afirmar que a área de uma figura contida no quadrado é aproximadamente
