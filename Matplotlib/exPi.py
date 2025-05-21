@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 x = np.linspace(0, 1, 100)
 y = np.sqrt(1 - x**2)
 # Variavel auxiliar
-size = 10000
+size = 1000
 # Pontos aleatorios no intervalo [0,1)
 xdots = np.random.rand(size)
 ydots = np.random.rand(size)
