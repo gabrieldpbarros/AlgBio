@@ -29,6 +29,7 @@ def nedWun(align_mt, DNAseq1, DNAseq2, rows, cols):
             align_mt[i + 1, j + 1] = higher
 
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """
+    # IDEIA INICIAL: Armazenar os alinhamentos em duas strings e então retorná-los à main
     for i in range(rows - 1, 0, -1):
         for j in range(cols - 1, 0, -1):
             a = 0
