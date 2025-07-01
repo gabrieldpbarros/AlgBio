@@ -78,6 +78,9 @@ def nedWun(align_mt, DNAseq1:str, DNAseq2:str, rows:int, cols:int) -> str:
                     i -= 1
                     j -= 1
     
+    """ SCORES """
+    # a fazer
+
     return DNAalign1, DNAalign2
                 
 
