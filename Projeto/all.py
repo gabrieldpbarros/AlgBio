@@ -82,7 +82,36 @@ def nedWun(align_mt, DNAseq1:str, DNAseq2:str, rows:int, cols:int) -> str:
     # a fazer
 
     return DNAalign1, DNAalign2
-                
+
+""" Algoritmo de Smith-Waterman """
+def smiWat(align_mt, DNAseq1:str, DNAseq2:str, rows:int, cols:int) -> str:
+    # Penalidades
+    GAP = -2
+    MISMATCH = -1
+    MATCH = 1
+
+    """ PRIMEIRA ETAPA: Preenchimento da matriz de alinhamento """
+    for i in range(rows - 1):
+        for j in range(cols - 1):
+            upper_value = align_mt[i, j + 1] + GAP
+            if (upper_value < 0):
+                upper_value = 0
+            side_value = align_mt[i + 1, j] + GAP
+            if (side_value < 0):
+                side_value = 0
+            # Verifica se há match de nucleotídeos
+            if (DNAseq1[j] == DNAseq2[i]):
+                diagonal_value = align_mt[i, j] + MATCH
+            else:
+                diagonal_value = align_mt[i, j] + MISMATCH
+            if (diagonal_value < 0):
+                diagonal_value = 0
+            
+            # Encontra o maior valor e insere na posição a ser preenchida
+            higher = max(upper_value, side_value, diagonal_value)
+            align_mt[i + 1, j + 1] = higher
+    
+    """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """                     
 
 def main():
     DNAseq1 = "ATGC"
