@@ -114,8 +114,8 @@ def smiWat(align_mt, DNAseq1:str, DNAseq2:str, rows:int, cols:int) -> str:
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """                     
 
 def main():
-    DNAseq1 = "ATGC"
-    DNAseq2 = "AGGC"
+    DNAseq1 = "ATGCT"
+    DNAseq2 = "AGCT"
     cols = len(DNAseq1) + 1
     rows = len(DNAseq2) + 1
     align_mt = np.zeros((rows, cols))
