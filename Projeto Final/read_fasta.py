@@ -1,11 +1,16 @@
 import time
-from typing import Dict
+from typing import Tuple, List, Dict
 from Bio import Entrez
+from align import align
 
-def processArchives() -> Dict[str, str]:
-    """ Baixa e processa os arquivos fasta, armazenando em um dicionário com cabeçalho do arquivo como chave e sequência como item """
+def processArchives() -> Tuple[Dict[str, str], List[str]]:
+    """
+    Baixa e processa os arquivos fasta, armazenando em um dicionário com cabeçalho do arquivo como chave e sequência como item.
+    Retorna um dicionário segundo essa lógia e uma lista contendo os cabeçalhos (chaves) das sequências.
+    """
     Entrez.email = "beatriz.ormond@unifesp.br"
 
+    chaves = []
     sequencias = {}
     lista_ids = ['AY423387.1', 'AY423388.1', 'AB253429.1', 'AF004456', 'K03455.1']
 
@@ -32,6 +37,7 @@ def processArchives() -> Dict[str, str]:
                         sequencia += linha
 
         sequencias[cabecalho] = sequencia
+        chaves.append(cabecalho)
     # Fim do processamento dos arquivos .fasta
     print("Processamento completo.\n\n")
 
@@ -40,4 +46,22 @@ def processArchives() -> Dict[str, str]:
         print(f"Cabeçalho = {i}\n", end="")
         print(f"Sequência = {j}\n\n")
     
-    return sequencias
+    return sequencias, chaves
+
+def sizes(seq_dict: Dict[str, str]) -> Dict[str, int]:
+    """ Recebe o dicionário das sequências e retorna o um dicionário contendo o tamanho de cada sequência """
+    tamanho = {}
+    for i,j in seq_dict.items():
+        tamanho[i] = len(j)
+        print(f"Sequência {i}: {tamanho[i]}")
+
+    return tamanho
+
+def main():
+    seq_dict, chaves = processArchives()
+    size_dict = sizes(seq_dict)
+
+    align(seq_dict[chaves[0]][:300], seq_dict[chaves[1]][:300])
+
+if __name__ == "__main__":
+    main()
