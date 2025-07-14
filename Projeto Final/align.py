@@ -2,11 +2,10 @@ import numpy as np
 
 """ Algoritmo de Needleman-Wunsch """
 def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: int) -> str:
-    # Penalidades e score
+    # Penalidades
     GAP = -2
     MISMATCH = -1
     MATCH = 1
-    SCORE = 0
 
     # Insere os gaps iniciais
     align_mt[0, :] = np.arange(0, cols * GAP, GAP)
@@ -26,9 +25,9 @@ def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
             # Encontra o maior valor e insere na posição a ser preenchida
             higher = max(upper_value, side_value, diagonal_value)
             align_mt[i + 1, j + 1] = higher
-    SCORE = align_mt[rows - 1][cols - 1]
 
-    print(SCORE)
+    SCORE = align_mt[rows - 1][cols - 1]
+    print(f"Score final para o alinhamento global: {SCORE}")
 
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """
     DNAalign1 = ""
@@ -108,6 +107,9 @@ def smiWat(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
             higher = max(upper_value, side_value, diagonal_value)
             align_mt[i + 1, j + 1] = higher
     
+    SCORE = align_mt[rows - 1][cols - 1]
+    print(f"Score final para o alinhamento local: {SCORE}")
+    
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """
                          
 
@@ -117,8 +119,11 @@ def align(DNAseq1: str, DNAseq2: str):
     align_mt = np.zeros((rows, cols))
     DNAalign1, DNAalign2 = nedWun(align_mt, DNAseq1, DNAseq2, rows, cols)
 
-
-    with open("sequence_alignment_TEMP.txt", "w") as al_file:
+    with open("global_sequence_alignment.txt", "w") as al_file:
         al_file.write(f"{DNAalign1}\n{DNAalign2}")
+    al_file.close()
 
+    DNAalign1, DNAalign2 = smiWat(align_mt, DNAseq1, DNAseq2, rows, cols)
+    with open("local_sequence_alignment.txt", "w") as al_file:
+        al_file.write(f"{DNAalign1}\n{DNAalign2}")
     al_file.close()
