@@ -1,67 +1,102 @@
-import time
-from typing import Tuple, List, Dict
-from Bio import Entrez
 from align import align
+from Bio import Entrez
+from freq_nucleotideos import leitura
+from temp_melting import calcular_tm
+from typing import Tuple, List, Dict
+
+import freq_aminoacidos as fa
+import os
+import time
 
 def processArchives() -> Tuple[Dict[str, str], List[str]]:
     """
-    Baixa e processa os arquivos fasta, armazenando em um dicionário com cabeçalho do arquivo como chave e sequência como item.
+    Baixa (se não encontrados no diretório) e processa os arquivos fasta, armazenando em um dicionário com cabeçalho do arquivo como chave e sequência como item.
     Retorna um dicionário segundo essa lógia e uma lista contendo os cabeçalhos (chaves) das sequências.
     """
     Entrez.email = "beatriz.ormond@unifesp.br"
+    dir = "db/fasta_archives"
 
     chaves = []
     sequencias = {}
     lista_ids = ['AY423387.1', 'AY423388.1', 'AB253429.1', 'AF004456', 'K03455.1']
 
     for id in lista_ids:
-        print(f"Processando o ID: {id}")
-        with Entrez.efetch (db = 'nucleotide', id = id, rettype = 'fasta', retmode = 'text') as handle:
-            seq = handle.read()
-        time.sleep(1) # Espera 1 seg para outro download
+        try:
+            # Caso o arquivo já exista no diretório
+            cabecalho = ''
+            sequencia = ''
 
-        nome_arquivo = f"{id}.fasta"
-        with open(nome_arquivo, 'w') as arquivo:
-            arquivo.write(seq)
+            nome_arquivo = os.path.join(dir, id + ".fasta")
+            with open(nome_arquivo, 'r') as arquivo:
+                    linhas = arquivo.readlines()  # Coloca cada linha do arquivo como um elemento em uma lista
+                    for linha in linhas:
+                        linha = linha.strip()
+                        if linha.startswith('>'):
+                            cabecalho = linha[1:] # Tira o ">"
+                        else:
+                            sequencia += linha
+    
+            sequencias[cabecalho] = sequencia
+            chaves.append(cabecalho)
+        except FileNotFoundError:
+            # Caso seja necesário baixá-lo
+            print(f"Baixando o arquivo relativo ao ID: {id}")
+            with Entrez.efetch (db = 'nucleotide', id = id, rettype = 'fasta', retmode = 'text') as handle:
+                seq = handle.read()
+            time.sleep(1) # Espera 1 seg para outro download (evitar crash)
 
-        cabecalho = ''
-        sequencia = ''
+            nome_arquivo = os.path.join(dir, id + ".fasta")
+            with open(nome_arquivo, 'w') as arquivo:
+                arquivo.write(seq)
 
-        with open(nome_arquivo, 'r') as arquivo:
-                linhas = arquivo.readlines()  # Coloca cada linha do arquivo como um elemento em uma lista
-                for linha in linhas:
-                    linha = linha.strip()
-                    if linha.startswith('>'):
-                        cabecalho = linha[1:] # Tira o ">"
-                    else:
-                        sequencia += linha
+            cabecalho = ''
+            sequencia = ''
 
-        sequencias[cabecalho] = sequencia
-        chaves.append(cabecalho)
+            with open(nome_arquivo, 'r') as arquivo:
+                    linhas = arquivo.readlines()  # Coloca cada linha do arquivo como um elemento em uma lista
+                    for linha in linhas:
+                        linha = linha.strip()
+                        if linha.startswith('>'):
+                            cabecalho = linha[1:] # Tira o ">"
+                        else:
+                            sequencia += linha
+
+            sequencias[cabecalho] = sequencia
+            chaves.append(cabecalho)
     # Fim do processamento dos arquivos .fasta
     print("Processamento completo.\n\n")
 
     # Imprime o dicionário, apenas para visualização
-    for i, j in sequencias.items():
-        print(f"Cabeçalho = {i}\n", end="")
-        print(f"Sequência = {j}\n\n")
+    # for i, j in sequencias.items():
+    #     print(f"Cabeçalho = {i}\n", end="")
+    #     print(f"Sequência = {j}\n\n")
     
     return sequencias, chaves
 
-def sizes(seq_dict: Dict[str, str]) -> Dict[str, int]:
-    """ Recebe o dicionário das sequências e retorna o um dicionário contendo o tamanho de cada sequência """
-    tamanho = {}
-    for i,j in seq_dict.items():
-        tamanho[i] = len(j)
-        print(f"Sequência {i}: {tamanho[i]}")
+def sizes(seq_dict: Dict[str, str]):
+    """ Recebe o dicionário das sequências e cria um arquivo .csv contendo o tamanho de cada sequência """
+    # Diretório final dos dados
+    dir = "db/analysis"
+    nome_arquivo = os.path.join(dir, "sequence_sizes.csv")
 
-    return tamanho
+    # Títulos
+    with open(nome_arquivo, "w") as titles:
+        titles.write("ID,size\n")
+
+    with open(nome_arquivo, "a") as size:
+        for header, seq in seq_dict.items():
+            tamanho = len(seq)
+            size.write(f'"{header}",{tamanho}\n')
+
 
 def main():
     seq_dict, chaves = processArchives()
     size_dict = sizes(seq_dict)
+    leitura(seq_dict)
+    calcular_tm(seq_dict)
+    print("------INFORMAÇÕES EXTRAÍDAS------")
 
-    align(seq_dict[chaves[0]][:300], seq_dict[chaves[1]][:300])
+    #align(seq_dict[chaves[0]][:300], seq_dict[chaves[1]][:300])
 
 if __name__ == "__main__":
     main()
