@@ -82,7 +82,7 @@ def sizes(seq_dict: Dict[str, str]) -> None:
 
     # Títulos
     with open(nome_arquivo, "w") as titles:
-        titles.write("ID,size\n")
+        titles.write("ID,Size\n")
 
     with open(nome_arquivo, "a") as size:
         for header, seq in seq_dict.items():
