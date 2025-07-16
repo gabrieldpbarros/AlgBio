@@ -30,6 +30,36 @@ CODONS_TABLE: Dict[str, str] = {
 
 ### a. Implementar função de tradução
 
+def transcrever_dna_para_rna(sequencia_dna: str) -> str:
+    """
+    Transcreve uma sequência de DNA para uma sequência de RNA.
+    A -> U
+    T -> A
+    C -> G
+    G -> C
+    """
+    # Certifique-se de que a sequência está em maiúsculas para o mapeamento
+    sequencia_dna_upper = sequencia_dna.upper()
+
+    # Mapeamento correto de DNA para RNA
+    # Note que 'T' do DNA vira 'A' no RNA, 'A' do DNA vira 'U' no RNA.
+    # Citosina e Guanina se pareiam entre si.
+    mapeamento_transcricao = {
+        'A': 'U',
+        'T': 'A',
+        'C': 'G',
+        'G': 'C'
+    }
+
+    rna_bases = []
+    for base in sequencia_dna_upper:
+        # Se a base não estiver no mapeamento (ex: um caractere inválido),
+        # você pode optar por manter, ignorar ou levantar um erro.
+        # Aqui, vamos adicionar a base 'X' para indicar um caractere desconhecido.
+        rna_bases.append(mapeamento_transcricao.get(base, 'X'))
+
+    return "".join(rna_bases)
+
 def traduzir_sequencia(sequencias: Dict[str, str]) -> None:
     """
     Realiza a tradução de uma sequência de nucleotídeos (DNA ou RNA)
@@ -39,7 +69,7 @@ def traduzir_sequencia(sequencias: Dict[str, str]) -> None:
     Códons não encontrados são identificados com 'X'.
 
     Args:
-        sequencia (Dict[str, str]): Dicionário com todas as sequências de 
+        sequencia (Dict[str, str]): Dicionário com todas as sequências de
                                     nucleotídeos (DNA ou RNA) a ser traduzidos.
     """
 
@@ -52,11 +82,10 @@ def traduzir_sequencia(sequencias: Dict[str, str]) -> None:
         titles.write("ID,Amino acid\n")
 
     # Algoritmo principal de tradução
-    for key, sequencia_nucleotideos in sequencias.items():  
+    for key, sequencia_nucleotideos in sequencias.items():
         proteina = ""
-        # Converte T (Timina, DNA) para U (Uracila, RNA) para a tradução
-        # já que a tabela de códons é baseada em RNA.
-        sequencia_rna = sequencia_nucleotideos.upper().replace('T', 'U')
+        
+        sequencia_rna = transcrever_dna_para_rna(sequencia_nucleotideos)
 
         i = 0
         while i + 2 < len(sequencia_rna):
@@ -66,7 +95,7 @@ def traduzir_sequencia(sequencias: Dict[str, str]) -> None:
                 break # Para a tradução se um códon de parada for encontrado
             proteina += aminoacido
             i += 3
-        
+
         # Calcula as frequências, insere no dicionário de frequências e plota as frequências relativas
         frequencias = fa.calcular_frequencia_aminoacidos(proteina)
         fa.plotar_frequencia_aminoacidos(frequencias, key)

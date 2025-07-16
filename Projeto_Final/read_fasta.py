@@ -1,5 +1,5 @@
 from alinhamento import align
-from Bio import Entrez
+#from Bio import Entrez
 from freq_nucleotideos import leitura
 from temp_melting import calcular_tm
 from tradutor import traduzir_sequencia
@@ -14,7 +14,7 @@ def processArchives() -> Tuple[Dict[str, str], List[str]]:
     Baixa (se não encontrados no diretório) e processa os arquivos fasta, armazenando em um dicionário com cabeçalho do arquivo como chave e sequência como item.
     Retorna um dicionário segundo essa lógia e uma lista contendo os cabeçalhos (chaves) das sequências.
     """
-    Entrez.email = "beatriz.ormond@unifesp.br"
+    #Entrez.email = "beatriz.ormond@unifesp.br"
     dir = "db/fasta_archives"
 
     chaves = []
