@@ -15,7 +15,7 @@ def calcular_tm(sequencias: Dict[str, str]) -> float:
     
     with open(output_file, "w") as tm_table:
         # Titulos
-        tm_table.write("ID,Tm\n")
+        tm_table.write("ID,Tm (Degree Celsius)\n")
 
     for key, seq in sequencias.items():
         # Essencial para calcular o conteúdo GC

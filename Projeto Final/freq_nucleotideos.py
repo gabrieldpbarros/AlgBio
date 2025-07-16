@@ -47,7 +47,7 @@ def salvar_frequencias_csv(header: str, seq: str, nome_saida: str) -> None:
 
 def leitura(sequences_dict: Dict[str, int]) -> None:
     db_dir = "db/analysis"
-    output_filename = os.path.join(db_dir, 'frequencies.csv')
+    output_filename = os.path.join(db_dir, 'nuc_frequencies.csv')
 
     # Cria um arquivo .csv que vai conter todas as frequências
     with open(output_filename, 'w') as saida:

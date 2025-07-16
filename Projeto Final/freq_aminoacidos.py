@@ -4,7 +4,6 @@ import collections
 import matplotlib.pyplot as plt
 import os
 
-
 def calcular_frequencia_aminoacidos(sequencia_proteica: str) -> Dict[str, float]:
     """
     Calcula a frequência (em porcentagem) de cada aminoácido em uma
@@ -20,12 +19,12 @@ def calcular_frequencia_aminoacidos(sequencia_proteica: str) -> Dict[str, float]
     if not sequencia_proteica:
         return {}
 
-    contagem_aminoacidos: Dict[str,int]  = collections.Counter(sequencia_proteica)
+    contagem_aminoacidos: Dict[str, int]  = collections.Counter(sequencia_proteica)
     total_aminoacidos: int = len(sequencia_proteica)
-    frequencias:Dict[str,float] = {aa: (count / total_aminoacidos) * 100 for aa, count in contagem_aminoacidos.items()}
+    frequencias:Dict[str, float] = {aa: (count / total_aminoacidos) * 100 for aa, count in contagem_aminoacidos.items()}
     return frequencias
 
-def plotar_frequencia_aminoacidos(frequencias:Dict[str, float], titulo:str="Frequência relativa dos aminoácidos de cada sequência") -> None:
+def plotar_frequencia_aminoacidos(frequencias: Dict[str, float], cabecalho) -> None:
     """
     Plota um gráfico de barras mostrando a frequência de aminoácidos.
 
@@ -33,6 +32,11 @@ def plotar_frequencia_aminoacidos(frequencias:Dict[str, float], titulo:str="Freq
         frequencias (dict): Dicionário com aminoácidos e suas frequências.
         titulo (str): Título do gráfico.
     """
+    # Extrai o ID do cabeçalho
+    cabecalho_separado = cabecalho.split()
+    ID = cabecalho_separado[0]
+    titulo = f"Frequência relativa dos aminoácidos para {ID}"
+
     if not frequencias:
         print(f"Não há dados para plotar para: {titulo}")
         return
@@ -50,7 +54,6 @@ def plotar_frequencia_aminoacidos(frequencias:Dict[str, float], titulo:str="Freq
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
-    output_dir:str = "graficos"
+    output_dir: str = "graficos"
     output_filename: str = os.path.join(output_dir, f"{titulo}.png")
     fig.savefig(output_filename)
-    plt.show()

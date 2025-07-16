@@ -1,7 +1,8 @@
-from align import align
+from alinhamento import align
 from Bio import Entrez
 from freq_nucleotideos import leitura
 from temp_melting import calcular_tm
+from tradutor import traduzir_sequencia
 from typing import Tuple, List, Dict
 
 import freq_aminoacidos as fa
@@ -73,7 +74,7 @@ def processArchives() -> Tuple[Dict[str, str], List[str]]:
     
     return sequencias, chaves
 
-def sizes(seq_dict: Dict[str, str]):
+def sizes(seq_dict: Dict[str, str]) -> None:
     """ Recebe o dicionário das sequências e cria um arquivo .csv contendo o tamanho de cada sequência """
     # Diretório final dos dados
     dir = "db/analysis"
@@ -90,13 +91,15 @@ def sizes(seq_dict: Dict[str, str]):
 
 
 def main():
+    # Criação dos dicionários no formato Dict[cabeçalho da seq_nucleotideos, seq_nucleotideos]
     seq_dict, chaves = processArchives()
-    size_dict = sizes(seq_dict)
+    # Informações que desejamos extrair das sequências
+    sizes(seq_dict)
     leitura(seq_dict)
     calcular_tm(seq_dict)
+    align(seq_dict, chaves)
+    traduzir_sequencia(seq_dict)
     print("------INFORMAÇÕES EXTRAÍDAS------")
-
-    #align(seq_dict[chaves[0]][:300], seq_dict[chaves[1]][:300])
 
 if __name__ == "__main__":
     main()

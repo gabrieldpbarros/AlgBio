@@ -1,10 +1,27 @@
-import numpy as np
+from typing import Dict, List
 
-def save_alginment():
-    """ Armazena o alinhamento em um arquivo .csv """
+import csv
+import numpy as np
+import os
+
+def save_alginment_score(path_name: str, score_map: np.ndarray, headers: List[str]) -> None:
+    """ Armazena o score do alinhamento no um arquivo .csv """
+    # Cria os títulos para o .csv que contém os scores dos alinhamentos globais e insere os valores após
+    with open(path_name, "w", newline='') as align_file:
+        writer = csv.writer(align_file)
+
+        # Escreve a linha de títulos (nomes das colunas).
+        # A formatação de headers impede que as vírgulas nos cabeçalhos sejam inclusas como vírgulas do .csv
+        writer.writerow(['ID'] + headers)
+
+        # Escreve as linhas de dados
+        for i in range(5):
+            # Cada linha começa com o nome da sequência correspondente
+            row_to_write = [headers[i]] + score_map[i, :].tolist()
+            writer.writerow(row_to_write)
 
 """ Algoritmo de Needleman-Wunsch """
-def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: int) -> None:
+def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: int) -> np.number:
     # Penalidades
     GAP = -2
     MISMATCH = -1
@@ -30,7 +47,6 @@ def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
             align_mt[i + 1, j + 1] = higher
 
     score = align_mt[rows - 1][cols - 1]
-    print(f"Score final para o alinhamento global: {score}")
 
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """
     DNAalign1 = ""
@@ -80,10 +96,10 @@ def nedWun(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
                     i -= 1
                     j -= 1
 
-    return DNAalign1, DNAalign2
+    return score
 
 """ Algoritmo de Smith-Waterman """
-def smiWat(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: int) -> None:
+def smiWat(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: int) -> np.number:
     # Penalidades
     GAP = -2
     MISMATCH = -1
@@ -110,7 +126,6 @@ def smiWat(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
             align_mt[i + 1, j + 1] = higher
     
     score = np.max(align_mt)
-    print(f"Score final para o alinhamento local: {score}")
     
     """ SEGUNGA ETAPA: Percorre a matriz pela extremidade oposta, retornando o alinhamento ótimo """
     # Lista que vai conter todos os alinhamentos locais
@@ -164,21 +179,37 @@ def smiWat(align_mt: np.ndarray, DNAseq1: str, DNAseq2: str, rows: int, cols: in
 
         local_align.insert(0, (DNAalign1, DNAalign2, score))
 
-    print(local_align)
+    return score
 
                 
-def align(DNAseq1: str, DNAseq2: str):
-    cols = len(DNAseq1) + 1
-    rows = len(DNAseq2) + 1
-    align_mt = np.zeros((rows, cols))
-    smiWat(align_mt, DNAseq1, DNAseq2, rows, cols)
-    #DNAalign1, DNAalign2 = nedWun(align_mt, DNAseq1, DNAseq2, rows, cols)
+def align(seq_dict: Dict[str, str], headers: List[str]) -> None:
+    # Caminho para o diretório final
+    dir_name = "db/analysis"
+    output_global_file = os.path.join(dir_name, "global_alignment.csv")
+    output_local_file = os.path.join(dir_name, "local_alignment.csv")
 
-    #with open("global_sequence_alignment.txt", "w") as al_file:
-    #    al_file.write(f"{DNAalign1}\n{DNAalign2}")
+    # Matrizes de score
+    global_scores = np.zeros((5,5))
+    local_scores = np.zeros((5,5))
 
-    #DNAalign1, DNAalign2 = smiWat(align_mt, DNAseq1, DNAseq2, rows, cols)
-    #with open("local_sequence_alignment.txt", "w") as al_file:
-    #    al_file.write(f"{DNAalign1}\n{DNAalign2}")
+    for i in range(5):
+        for j in range(5):
+            if (i == j):
+                global_scores[i, j] = 0
+                local_scores[i, j] = 0
+            else:
+                # Seleciona apenas os 300 primeiros nucleotídeos
+                DNAseq1 = seq_dict[headers[i]][:300]
+                DNAseq2 = seq_dict[headers[j]][:300]
+                cols = len(DNAseq1) + 1
+                rows = len(DNAseq2) + 1
+                # Matrizes de alinhamento
+                global_align_mt = np.zeros((rows, cols))
+                local_align_mt = np.zeros((rows, cols))
+                # Calcula os alinhamentos e scores
+                global_scores[i, j] = nedWun(global_align_mt, DNAseq1, DNAseq2, rows, cols)
+                local_scores[i, j] = smiWat(local_align_mt, DNAseq1, DNAseq2, rows, cols)
 
-align("ATT", "GTT")
+    # Insere os valores nos respectivos .csv
+    save_alginment_score(output_global_file, global_scores, headers)
+    save_alginment_score(output_local_file, local_scores, headers)
